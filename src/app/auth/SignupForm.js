@@ -1,16 +1,26 @@
 // src/app/auth/SignupForm.js
 "use client";
+
 import React, { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
 
-const SignupForm = () => {
+const SignupForm = ({ onSignupSuccess }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
 
     const handleSignup = (e) => {
         e.preventDefault();
-        console.log('Kayıt Yapıldı', { username, password });
-        // Kayıt işlemleri burada yapılacak
+
+        // Kullanıcı bilgilerini simüle et
+        const user = { username, password };
+
+        // Bilgileri localStorage'a kaydet
+        localStorage.setItem('user', JSON.stringify(user));
+
+        // Başarı mesajı göster ve giriş formuna geçiş yap
+        setMessage('Kayıt başarılı! Giriş yapmak için lütfen Giriş Yap butonuna tıklayın.');
+        onSignupSuccess(); // Giriş formuna geçiş yap
     };
 
     return (
@@ -35,6 +45,7 @@ const SignupForm = () => {
             <Button type="submit" variant="contained" color="primary" fullWidth>
                 Kayıt Ol
             </Button>
+            {message && <p>{message}</p>}
         </Box>
     );
 };

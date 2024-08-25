@@ -1,5 +1,6 @@
 // src/app/auth/AuthPage.js
 "use client";
+
 import React, { useState } from 'react';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
@@ -12,13 +13,22 @@ const AuthPage = () => {
         setIsLogin((prevMode) => !prevMode);
     };
 
+    // Kayıt başarılı olduğunda giriş formuna geçiş yapmak için bir fonksiyon
+    const handleSignupSuccess = () => {
+        setIsLogin(true); // Giriş formuna geçiş yap
+    };
+
     return (
         <Container maxWidth="sm">
             <Box sx={{ textAlign: 'center', mt: 4 }}>
                 <Typography variant="h4">
                     {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
                 </Typography>
-                {isLogin ? <LoginForm /> : <SignupForm />}
+                {isLogin ? (
+                    <LoginForm />
+                ) : (
+                    <SignupForm onSignupSuccess={handleSignupSuccess} />
+                )}
                 <Box mt={2}>
                     <Typography variant="body1">
                         {isLogin ? 'Hesabınız yok mu?' : 'Zaten hesabınız var mı?'}

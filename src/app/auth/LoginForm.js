@@ -3,21 +3,25 @@
 
 import React, { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
-import { useRouter } from 'next/navigation'; // Next.js yönlendirme hook'u
+import { useRouter } from 'next/navigation';
 
 const LoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const router = useRouter();
 
     const handleLogin = (e) => {
         e.preventDefault();
-        // Giriş kontrolünü simüle ediyoruz, bu kısımda API çağrısı yapılabilir.
-        if (username === 'testuser' && password === '1234') {
-            // Giriş başarılıysa Dashboard sayfasına yönlendirin
+
+        // Yerel depolama bilgilerini kontrol et
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+
+        if (storedUser && storedUser.username === username && storedUser.password === password) {
+            // Giriş başarılıysa yönlendir
             router.push('/dashboard');
         } else {
-            console.log('Yanlış kullanıcı adı veya şifre');
+            setError('Yanlış kullanıcı adı veya şifre');
         }
     };
 
@@ -43,6 +47,7 @@ const LoginForm = () => {
             <Button type="submit" variant="contained" color="primary" fullWidth>
                 Giriş Yap
             </Button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
         </Box>
     );
 };
