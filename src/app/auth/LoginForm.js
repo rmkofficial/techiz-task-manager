@@ -1,16 +1,24 @@
 // src/app/auth/LoginForm.js
 "use client";
+
 import React, { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
+import { useRouter } from 'next/navigation'; // Next.js yönlendirme hook'u
 
 const LoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const router = useRouter();
 
     const handleLogin = (e) => {
         e.preventDefault();
-        console.log('Giriş Yapıldı', { username, password });
-        // Giriş işlemleri burada yapılacak
+        // Giriş kontrolünü simüle ediyoruz, bu kısımda API çağrısı yapılabilir.
+        if (username === 'testuser' && password === '1234') {
+            // Giriş başarılıysa Dashboard sayfasına yönlendirin
+            router.push('/dashboard');
+        } else {
+            console.log('Yanlış kullanıcı adı veya şifre');
+        }
     };
 
     return (
