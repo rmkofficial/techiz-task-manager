@@ -20,7 +20,7 @@ const LoginForm = () => {
         if (storedUser && storedUser.username === username && storedUser.password === password) {
             // Oturum bilgisini ayarla
             localStorage.setItem('isLoggedIn', 'true');
-
+            localStorage.setItem('username', username);
             // Giriş başarılıysa Dashboard sayfasına yönlendir
             router.push('/dashboard');
         } else {
