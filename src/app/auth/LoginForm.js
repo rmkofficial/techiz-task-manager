@@ -18,7 +18,10 @@ const LoginForm = () => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
 
         if (storedUser && storedUser.username === username && storedUser.password === password) {
-            // Giriş başarılıysa yönlendir
+            // Oturum bilgisini ayarla
+            localStorage.setItem('isLoggedIn', 'true');
+
+            // Giriş başarılıysa Dashboard sayfasına yönlendir
             router.push('/dashboard');
         } else {
             setError('Yanlış kullanıcı adı veya şifre');
