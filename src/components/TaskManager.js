@@ -1,24 +1,22 @@
-// src/components/TaskManager.js
-"use client";
+"use client"; 
 
 import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
+import useStore from '../store'; 
 
 const TaskManager = () => {
-    const [tasks, setTasks] = useState([]);
+    const { tasks, addTask, removeTask, updateTask, setTasks } = useStore(); 
     const [newTask, setNewTask] = useState('');
     const [editTaskId, setEditTaskId] = useState(null);
     const [editTaskTitle, setEditTaskTitle] = useState('');
 
     useEffect(() => {
-        fetch('/api/tasks')
-            .then(response => response.json())
-            .then(data => setTasks(data))
-            .catch(() => toast.error('Görevler yüklenemedi.'));
-    }, []);
+        const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        setTasks(storedTasks);
+    }, [setTasks]);
 
     const handleAddTask = () => {
         if (newTask.trim() === '') {
@@ -26,22 +24,10 @@ const TaskManager = () => {
             return;
         }
 
-        const task = { title: newTask };
-
-        fetch('/api/tasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(task),
-        })
-            .then(response => response.json())
-            .then(data => {
-                setTasks([...tasks, data]);
-                setNewTask('');
-                toast.success('Görev başarıyla eklendi!');
-            })
-            .catch(() => toast.error('Görev eklenemedi.'));
+        const newTaskEntry = { id: new Date().getTime(), title: newTask };
+        addTask(newTaskEntry);
+        setNewTask('');
+        toast.success('Görev başarıyla eklendi!');
     };
 
     const handleEditTask = (id, title) => {
@@ -55,49 +41,29 @@ const TaskManager = () => {
             return;
         }
 
-        fetch('/api/tasks', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: editTaskId, title: editTaskTitle }),
-        })
-            .then(response => response.json())
-            .then(updatedTask => {
-                setTasks(tasks.map(task => (task.id === updatedTask.id ? updatedTask : task)));
-                setEditTaskId(null);
-                setEditTaskTitle('');
-                toast.success('Görev başarıyla güncellendi!');
-            })
-            .catch(() => toast.error('Görev güncellenemedi.'));
+        updateTask({ id: editTaskId, title: editTaskTitle });
+        setEditTaskId(null);
+        setEditTaskTitle('');
+        toast.success('Görev başarıyla güncellendi!');
     };
 
     const handleDeleteTask = (id) => {
-        fetch('/api/tasks', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id }),
-        })
-            .then(() => {
-                setTasks(tasks.filter(task => task.id !== id));
-                toast.success('Görev başarıyla silindi!');
-            })
-            .catch(() => toast.error('Görev silinemedi.'));
+        removeTask(id);
+        toast.success('Görev başarıyla silindi!');
     };
 
     return (
-        <Box>
-            <Typography variant="h4">Görev Yönetimi</Typography>
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+            <Typography variant="h5">Görev Yönetimi</Typography>
             <Box sx={{ mt: 2 }}>
                 <TextField
                     label="Yeni Görev"
                     variant="outlined"
                     value={newTask}
                     onChange={(e) => setNewTask(e.target.value)}
+                    sx={{ mr: 2 }}
                 />
-                <Button variant="contained" sx={{ ml: 2 }} onClick={handleAddTask}>
+                <Button variant="contained" onClick={handleAddTask}>
                     Ekle
                 </Button>
             </Box>
