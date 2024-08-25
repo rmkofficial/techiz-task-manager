@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, Box, Button } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import TaskManager from '../../components/TaskManager'; // Yeni eklenen bileşeni içe aktar
 
 const DashboardPage = () => {
     const router = useRouter();
@@ -16,7 +17,7 @@ const DashboardPage = () => {
         if (!isLoggedIn) {
             router.push('/'); // Oturum yoksa giriş sayfasına yönlendir
         } else {
-            setUsername(storedUsername || 'Kullanıcı'); // Oturum açıksa kullanıcı adını ayarla
+            setUsername(storedUsername || 'Kullanıcı'); // Kullanıcı adı ayarla
         }
     }, [router]);
 
@@ -34,26 +35,12 @@ const DashboardPage = () => {
                 <Typography variant="h4" sx={{ mt: 2 }}>
                     Hoş Geldin, {username}!
                 </Typography>
-                <Typography variant="body1" sx={{ mt: 2 }}>
-                    Bu, giriş yaptıktan sonra gördüğünüz Dashboard sayfasıdır.
-                </Typography>
-
-                <Typography variant="h5" sx={{ mt: 4 }}>
-                    Toplam Tamamlanan Görev Sayısı: 10
-                </Typography>
-
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                    <Button variant="outlined" sx={{ mx: 1 }}>
-                        Profil Düzenle
-                    </Button>
-                    <Button variant="outlined" sx={{ mx: 1 }}>
-                        Yeni Görev Ekle
+                <TaskManager /> {/* Görev Yönetimi Bileşeni */}
+                <Box sx={{ mt: 4 }}>
+                    <Button variant="contained" color="primary" onClick={handleLogout}>
+                        Çıkış Yap
                     </Button>
                 </Box>
-
-                <Button onClick={handleLogout} variant="contained" color="primary" sx={{ mt: 4 }}>
-                    Çıkış Yap
-                </Button>
             </Box>
         </Container>
     );
