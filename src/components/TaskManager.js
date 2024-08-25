@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { toast } from 'react-toastify';
 
 const TaskManager = () => {
     const [tasks, setTasks] = useState([]);
@@ -15,11 +16,15 @@ const TaskManager = () => {
     useEffect(() => {
         fetch('/api/tasks')
             .then(response => response.json())
-            .then(data => setTasks(data));
+            .then(data => setTasks(data))
+            .catch(() => toast.error('Görevler yüklenemedi.'));
     }, []);
 
     const handleAddTask = () => {
-        if (newTask.trim() === '') return;
+        if (newTask.trim() === '') {
+            toast.error('Görev başlığı boş olamaz.');
+            return;
+        }
 
         const task = { title: newTask };
 
@@ -34,7 +39,9 @@ const TaskManager = () => {
             .then(data => {
                 setTasks([...tasks, data]);
                 setNewTask('');
-            });
+                toast.success('Görev başarıyla eklendi!');
+            })
+            .catch(() => toast.error('Görev eklenemedi.'));
     };
 
     const handleEditTask = (id, title) => {
@@ -43,6 +50,11 @@ const TaskManager = () => {
     };
 
     const handleUpdateTask = () => {
+        if (editTaskTitle.trim() === '') {
+            toast.error('Görev başlığı boş olamaz.');
+            return;
+        }
+
         fetch('/api/tasks', {
             method: 'PUT',
             headers: {
@@ -55,7 +67,9 @@ const TaskManager = () => {
                 setTasks(tasks.map(task => (task.id === updatedTask.id ? updatedTask : task)));
                 setEditTaskId(null);
                 setEditTaskTitle('');
-            });
+                toast.success('Görev başarıyla güncellendi!');
+            })
+            .catch(() => toast.error('Görev güncellenemedi.'));
     };
 
     const handleDeleteTask = (id) => {
@@ -68,7 +82,9 @@ const TaskManager = () => {
         })
             .then(() => {
                 setTasks(tasks.filter(task => task.id !== id));
-            });
+                toast.success('Görev başarıyla silindi!');
+            })
+            .catch(() => toast.error('Görev silinemedi.'));
     };
 
     return (
