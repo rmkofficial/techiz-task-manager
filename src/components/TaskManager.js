@@ -8,17 +8,27 @@ import { toast } from 'react-toastify';
 import useStore, { useLoadTasks } from '../store';
 
 const TaskManager = () => {
-    const { tasks, addTask, removeTask, updateTask, updateTaskStatus } = useStore();
+    const {
+        tasks,
+        addTask,
+        removeTask,
+        updateTask,
+        updateTaskStatus,
+        searchTerm,
+        filterStatus,
+        setSearchTerm,
+        setFilterStatus,
+    } = useStore();
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
-    const [newTaskStatus, setNewTaskStatus] = useState('todo'); // Varsayılan durum
+    const [newTaskStatus, setNewTaskStatus] = useState('todo');
     const [editTaskId, setEditTaskId] = useState(null);
     const [editTaskTitle, setEditTaskTitle] = useState('');
     const [editTaskDescription, setEditTaskDescription] = useState('');
     const [editTaskStatus, setEditTaskStatus] = useState('');
     const [open, setOpen] = useState(false);
 
-    useLoadTasks(); 
+    useLoadTasks();
 
     const handleAddTask = () => {
         if (newTaskTitle.trim() === '' || newTaskDescription.trim() === '') {
@@ -36,7 +46,7 @@ const TaskManager = () => {
         addTask(newTaskEntry);
         setNewTaskTitle('');
         setNewTaskDescription('');
-        setNewTaskStatus('todo'); // Varsayılan durum
+        setNewTaskStatus('todo');
         toast.success('Görev başarıyla eklendi!');
     };
 
@@ -72,10 +82,34 @@ const TaskManager = () => {
         updateTaskStatus(taskId, newStatus);
     };
 
+    const filteredTasks = tasks.filter((task) => {
+        const matchesSearchTerm = task.title.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesFilterStatus = filterStatus === 'all' || task.status === filterStatus;
+        return matchesSearchTerm && matchesFilterStatus;
+    });
+
     return (
         <Box sx={{ mt: 4, textAlign: 'center' }}>
             <Typography variant="h5">Görev Yönetimi</Typography>
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, mb: 2 }}>
+                <TextField
+                    label="Görev Ara"
+                    variant="outlined"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={{ mr: 2 }}
+                />
+                <Select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    displayEmpty
+                    sx={{ mr: 2 }}
+                >
+                    <MenuItem value="all">Tümü</MenuItem>
+                    <MenuItem value="todo">Yapılacak</MenuItem>
+                    <MenuItem value="in-progress">Yapılıyor</MenuItem>
+                    <MenuItem value="done">Tamamlandı</MenuItem>
+                </Select>
                 <TextField
                     label="Görev Başlığı"
                     variant="outlined"
@@ -105,7 +139,7 @@ const TaskManager = () => {
                 </Button>
             </Box>
             <List sx={{ mt: 2 }}>
-                {tasks.map((task) => (
+                {filteredTasks.map((task) => (
                     <ListItem key={task.id} secondaryAction={
                         <>
                             <IconButton edge="end" aria-label="edit" onClick={() => handleEditTask(task)}>
