@@ -21,9 +21,6 @@ const AuthPage = () => {
     return (
         <Container maxWidth="sm">
             <Box sx={{ textAlign: 'center', mt: 4 }}>
-                <Typography variant="h4">
-                    {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
-                </Typography>
                 {isLogin ? (
                     <LoginForm />
                 ) : (
