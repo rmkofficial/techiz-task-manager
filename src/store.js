@@ -28,6 +28,15 @@ const useStore = create((set) => ({
         localStorage.setItem('tasks', JSON.stringify(updatedTasks));
         return { tasks: updatedTasks };
     }),
+
+    updateTaskStatus: (taskId, newStatus) =>
+        set((state) => {
+            const updatedTasks = state.tasks.map((task) =>
+                task.id === taskId ? { ...task, status: newStatus } : task
+            );
+            localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+            return { tasks: updatedTasks };
+        }),
 }));
 
 // Custom hook to load tasks only on client side

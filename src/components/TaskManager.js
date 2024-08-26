@@ -1,23 +1,24 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, List, ListItem, ListItemText, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Box, Button, TextField, Typography, List, ListItem, ListItemText, IconButton, Select, MenuItem } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
 import useStore, { useLoadTasks } from '../store';
 
 const TaskManager = () => {
-    const { tasks, addTask, removeTask, updateTask } = useStore();
+    const { tasks, addTask, removeTask, updateTask, updateTaskStatus } = useStore();
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
+    const [newTaskStatus, setNewTaskStatus] = useState('todo'); // Varsayılan durum
     const [editTaskId, setEditTaskId] = useState(null);
     const [editTaskTitle, setEditTaskTitle] = useState('');
     const [editTaskDescription, setEditTaskDescription] = useState('');
+    const [editTaskStatus, setEditTaskStatus] = useState('');
     const [open, setOpen] = useState(false);
 
-    // Görevleri sadece istemci tarafında yükleyin
-    useLoadTasks();
+    useLoadTasks(); 
 
     const handleAddTask = () => {
         if (newTaskTitle.trim() === '' || newTaskDescription.trim() === '') {
@@ -29,11 +30,13 @@ const TaskManager = () => {
             id: new Date().getTime(),
             title: newTaskTitle,
             description: newTaskDescription,
+            status: newTaskStatus,
         };
 
         addTask(newTaskEntry);
         setNewTaskTitle('');
         setNewTaskDescription('');
+        setNewTaskStatus('todo'); // Varsayılan durum
         toast.success('Görev başarıyla eklendi!');
     };
 
@@ -41,6 +44,7 @@ const TaskManager = () => {
         setEditTaskId(task.id);
         setEditTaskTitle(task.title);
         setEditTaskDescription(task.description);
+        setEditTaskStatus(task.status);
         setOpen(true);
     };
 
@@ -50,10 +54,11 @@ const TaskManager = () => {
             return;
         }
 
-        updateTask({ id: editTaskId, title: editTaskTitle, description: editTaskDescription });
+        updateTask({ id: editTaskId, title: editTaskTitle, description: editTaskDescription, status: editTaskStatus });
         setEditTaskId(null);
         setEditTaskTitle('');
         setEditTaskDescription('');
+        setEditTaskStatus('');
         setOpen(false);
         toast.success('Görev başarıyla güncellendi!');
     };
@@ -61,6 +66,10 @@ const TaskManager = () => {
     const handleDeleteTask = (id) => {
         removeTask(id);
         toast.success('Görev başarıyla silindi!');
+    };
+
+    const handleChangeStatus = (taskId, newStatus) => {
+        updateTaskStatus(taskId, newStatus);
     };
 
     return (
@@ -81,6 +90,16 @@ const TaskManager = () => {
                     onChange={(e) => setNewTaskDescription(e.target.value)}
                     sx={{ mr: 2 }}
                 />
+                <Select
+                    value={newTaskStatus}
+                    onChange={(e) => setNewTaskStatus(e.target.value)}
+                    displayEmpty
+                    sx={{ mr: 2 }}
+                >
+                    <MenuItem value="todo">Yapılacak</MenuItem>
+                    <MenuItem value="in-progress">Yapılıyor</MenuItem>
+                    <MenuItem value="done">Tamamlandı</MenuItem>
+                </Select>
                 <Button variant="contained" onClick={handleAddTask}>
                     Ekle
                 </Button>
@@ -95,6 +114,16 @@ const TaskManager = () => {
                             <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteTask(task.id)}>
                                 <DeleteIcon />
                             </IconButton>
+                            <Select
+                                value={task.status}
+                                onChange={(e) => handleChangeStatus(task.id, e.target.value)}
+                                displayEmpty
+                                sx={{ ml: 2 }}
+                            >
+                                <MenuItem value="todo">Yapılacak</MenuItem>
+                                <MenuItem value="in-progress">Yapılıyor</MenuItem>
+                                <MenuItem value="done">Tamamlandı</MenuItem>
+                            </Select>
                         </>
                     }>
                         <ListItemText
@@ -104,37 +133,6 @@ const TaskManager = () => {
                     </ListItem>
                 ))}
             </List>
-            <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>Görev Düzenle</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Görev başlığını ve açıklamasını düzenleyin.
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Görev Başlığı"
-                        type="text"
-                        fullWidth
-                        variant="outlined"
-                        value={editTaskTitle}
-                        onChange={(e) => setEditTaskTitle(e.target.value)}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Görev Açıklaması"
-                        type="text"
-                        fullWidth
-                        variant="outlined"
-                        value={editTaskDescription}
-                        onChange={(e) => setEditTaskDescription(e.target.value)}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)}>İptal</Button>
-                    <Button onClick={handleUpdateTask}>Kaydet</Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     );
 };
