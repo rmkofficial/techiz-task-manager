@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Button, TextField, Typography, List, ListItem, ListItemText, IconButton, Select, MenuItem, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -20,19 +20,20 @@ const TaskManager = () => {
         setSearchTerm,
         setFilterStatus,
         setFilterCategory,
-        categories
+        categories,
+        newTaskTitle,
+        newTaskDescription,
+        newTaskCategory,
+        newTaskStatus,
+        editTaskId,
+        editTaskTitle,
+        editTaskDescription,
+        editTaskCategory,
+        editTaskStatus,
+        setNewTaskDetails,
+        setEditTaskDetails,
+        resetEditTaskDetails,
     } = useStore();
-
-    const [newTaskTitle, setNewTaskTitle] = useState('');
-    const [newTaskDescription, setNewTaskDescription] = useState('');
-    const [newTaskCategory, setNewTaskCategory] = useState('');
-    const [newTaskStatus, setNewTaskStatus] = useState('todo');
-    const [editTaskId, setEditTaskId] = useState(null);
-    const [editTaskTitle, setEditTaskTitle] = useState('');
-    const [editTaskDescription, setEditTaskDescription] = useState('');
-    const [editTaskCategory, setEditTaskCategory] = useState('');
-    const [editTaskStatus, setEditTaskStatus] = useState('');
-    const [open, setOpen] = useState(false);
 
     useLoadTasks();
 
@@ -51,20 +52,15 @@ const TaskManager = () => {
         };
 
         addTask(newTaskEntry);
-        setNewTaskTitle('');
-        setNewTaskDescription('');
-        setNewTaskCategory('');
-        setNewTaskStatus('todo');
+        setNewTaskDetails('newTaskTitle', '');
+        setNewTaskDetails('newTaskDescription', '');
+        setNewTaskDetails('newTaskCategory', '');
+        setNewTaskDetails('newTaskStatus', 'todo');
         toast.success('Görev başarıyla eklendi!');
     };
 
     const handleEditTask = (task) => {
-        setEditTaskId(task.id);
-        setEditTaskTitle(task.title);
-        setEditTaskDescription(task.description);
-        setEditTaskCategory(task.category);
-        setEditTaskStatus(task.status);
-        setOpen(true);
+        setEditTaskDetails(task);
     };
 
     const handleUpdateTask = () => {
@@ -74,12 +70,7 @@ const TaskManager = () => {
         }
 
         updateTask({ id: editTaskId, title: editTaskTitle, description: editTaskDescription, category: editTaskCategory, status: editTaskStatus });
-        setEditTaskId(null);
-        setEditTaskTitle('');
-        setEditTaskDescription('');
-        setEditTaskCategory('');
-        setEditTaskStatus('');
-        setOpen(false);
+        resetEditTaskDetails();
         toast.success('Görev başarıyla güncellendi!');
     };
 
@@ -138,20 +129,20 @@ const TaskManager = () => {
                     label="Görev Başlığı"
                     variant="outlined"
                     value={newTaskTitle}
-                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                    onChange={(e) => setNewTaskDetails('newTaskTitle', e.target.value)}
                     sx={{ mr: 2 }}
                 />
                 <TextField
                     label="Görev Açıklaması"
                     variant="outlined"
                     value={newTaskDescription}
-                    onChange={(e) => setNewTaskDescription(e.target.value)}
+                    onChange={(e) => setNewTaskDetails('newTaskDescription', e.target.value)}
                     sx={{ mr: 2 }}
                 />
                 <Select
                     label="Kategori"
                     value={newTaskCategory}
-                    onChange={(e) => setNewTaskCategory(e.target.value)}
+                    onChange={(e) => setNewTaskDetails('newTaskCategory', e.target.value)}
                     displayEmpty
                     sx={{ mr: 2 }}
                 >
@@ -196,7 +187,7 @@ const TaskManager = () => {
             </List>
 
             {/* Düzenleme Modalı */}
-            <Dialog open={open} onClose={() => setOpen(false)}>
+            <Dialog open={editTaskId !== null} onClose={resetEditTaskDetails}>
                 <DialogTitle>Görev Düzenle</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -210,7 +201,7 @@ const TaskManager = () => {
                         fullWidth
                         variant="outlined"
                         value={editTaskTitle}
-                        onChange={(e) => setEditTaskTitle(e.target.value)}
+                        onChange={(e) => setNewTaskDetails('editTaskTitle', e.target.value)}
                     />
                     <TextField
                         margin="dense"
@@ -219,11 +210,11 @@ const TaskManager = () => {
                         fullWidth
                         variant="outlined"
                         value={editTaskDescription}
-                        onChange={(e) => setEditTaskDescription(e.target.value)}
+                        onChange={(e) => setNewTaskDetails('editTaskDescription', e.target.value)}
                     />
                     <Select
                         value={editTaskCategory}
-                        onChange={(e) => setEditTaskCategory(e.target.value)}
+                        onChange={(e) => setNewTaskDetails('editTaskCategory', e.target.value)}
                         fullWidth
                         sx={{ mt: 2 }}
                     >
@@ -235,7 +226,7 @@ const TaskManager = () => {
                     </Select>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpen(false)}>İptal</Button>
+                    <Button onClick={resetEditTaskDetails}>İptal</Button>
                     <Button onClick={handleUpdateTask}>Kaydet</Button>
                 </DialogActions>
             </Dialog>

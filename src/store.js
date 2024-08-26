@@ -8,6 +8,17 @@ const useStore = create((set) => ({
     filterCategory: 'all',
     categories: ['İş', 'Kişisel', 'Eğitim', 'Acil'],
 
+
+    newTaskTitle: '',
+    newTaskDescription: '',
+    newTaskCategory: '',
+    newTaskStatus: 'todo',
+    editTaskId: null,
+    editTaskTitle: '',
+    editTaskDescription: '',
+    editTaskCategory: '',
+    editTaskStatus: '',
+
     fetchTasks: () => {
         if (typeof window !== 'undefined') {
             const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -58,6 +69,24 @@ const useStore = create((set) => ({
     setSearchTerm: (term) => set({ searchTerm: term }),
     setFilterStatus: (status) => set({ filterStatus: status }),
     setFilterCategory: (category) => set({ filterCategory: category }),
+
+    setNewTaskDetails: (field, value) => set((state) => ({ [field]: value })),
+    setEditTaskDetails: (task) =>
+        set({
+            editTaskId: task.id,
+            editTaskTitle: task.title,
+            editTaskDescription: task.description,
+            editTaskCategory: task.category,
+            editTaskStatus: task.status,
+        }),
+    resetEditTaskDetails: () =>
+        set({
+            editTaskId: null,
+            editTaskTitle: '',
+            editTaskDescription: '',
+            editTaskCategory: '',
+            editTaskStatus: '',
+        }),
 }));
 
 export default useStore;
