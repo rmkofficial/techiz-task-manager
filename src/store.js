@@ -5,6 +5,8 @@ const useStore = create((set) => ({
     tasks: [],
     searchTerm: '',
     filterStatus: 'all',
+    filterCategory: 'all',
+    categories: ['İş', 'Kişisel', 'Eğitim', 'Acil'],
 
     fetchTasks: () => {
         if (typeof window !== 'undefined') {
@@ -55,6 +57,7 @@ const useStore = create((set) => ({
 
     setSearchTerm: (term) => set({ searchTerm: term }),
     setFilterStatus: (status) => set({ filterStatus: status }),
+    setFilterCategory: (category) => set({ filterCategory: category }),
 }));
 
 export default useStore;

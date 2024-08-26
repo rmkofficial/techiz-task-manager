@@ -16,23 +16,29 @@ const TaskManager = () => {
         updateTaskStatus,
         searchTerm,
         filterStatus,
+        filterCategory,
         setSearchTerm,
         setFilterStatus,
+        setFilterCategory,
+        categories
     } = useStore();
+
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
+    const [newTaskCategory, setNewTaskCategory] = useState('');
     const [newTaskStatus, setNewTaskStatus] = useState('todo');
     const [editTaskId, setEditTaskId] = useState(null);
     const [editTaskTitle, setEditTaskTitle] = useState('');
     const [editTaskDescription, setEditTaskDescription] = useState('');
+    const [editTaskCategory, setEditTaskCategory] = useState('');
     const [editTaskStatus, setEditTaskStatus] = useState('');
     const [open, setOpen] = useState(false);
 
     useLoadTasks();
 
     const handleAddTask = () => {
-        if (newTaskTitle.trim() === '' || newTaskDescription.trim() === '') {
-            toast.error('Görev başlığı ve açıklaması boş olamaz.');
+        if (newTaskTitle.trim() === '' || newTaskDescription.trim() === '' || newTaskCategory.trim() === '') {
+            toast.error('Görev başlığı, açıklaması ve kategorisi boş olamaz.');
             return;
         }
 
@@ -40,38 +46,40 @@ const TaskManager = () => {
             id: new Date().getTime(),
             title: newTaskTitle,
             description: newTaskDescription,
+            category: newTaskCategory,
             status: newTaskStatus,
         };
 
         addTask(newTaskEntry);
         setNewTaskTitle('');
         setNewTaskDescription('');
+        setNewTaskCategory('');
         setNewTaskStatus('todo');
         toast.success('Görev başarıyla eklendi!');
     };
 
-    
     const handleEditTask = (task) => {
         setEditTaskId(task.id);
         setEditTaskTitle(task.title);
         setEditTaskDescription(task.description);
+        setEditTaskCategory(task.category);
         setEditTaskStatus(task.status);
-        setOpen(true); 
+        setOpen(true);
     };
 
-    
     const handleUpdateTask = () => {
-        if (editTaskTitle.trim() === '' || editTaskDescription.trim() === '') {
-            toast.error('Görev başlığı ve açıklaması boş olamaz.');
+        if (editTaskTitle.trim() === '' || editTaskDescription.trim() === '' || editTaskCategory.trim() === '') {
+            toast.error('Görev başlığı, açıklaması ve kategorisi boş olamaz.');
             return;
         }
 
-        updateTask({ id: editTaskId, title: editTaskTitle, description: editTaskDescription, status: editTaskStatus });
+        updateTask({ id: editTaskId, title: editTaskTitle, description: editTaskDescription, category: editTaskCategory, status: editTaskStatus });
         setEditTaskId(null);
         setEditTaskTitle('');
         setEditTaskDescription('');
+        setEditTaskCategory('');
         setEditTaskStatus('');
-        setOpen(false); 
+        setOpen(false);
         toast.success('Görev başarıyla güncellendi!');
     };
 
@@ -87,7 +95,8 @@ const TaskManager = () => {
     const filteredTasks = tasks.filter((task) => {
         const matchesSearchTerm = task.title.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesFilterStatus = filterStatus === 'all' || task.status === filterStatus;
-        return matchesSearchTerm && matchesFilterStatus;
+        const matchesFilterCategory = filterCategory === 'all' || task.category === filterCategory;
+        return matchesSearchTerm && matchesFilterStatus && matchesFilterCategory;
     });
 
     return (
@@ -112,6 +121,19 @@ const TaskManager = () => {
                     <MenuItem value="in-progress">Yapılıyor</MenuItem>
                     <MenuItem value="done">Tamamlandı</MenuItem>
                 </Select>
+                <Select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    displayEmpty
+                    sx={{ mr: 2 }}
+                >
+                    <MenuItem value="all">Tüm Kategoriler</MenuItem>
+                    {categories.map((category) => (
+                        <MenuItem key={category} value={category}>
+                            {category}
+                        </MenuItem>
+                    ))}
+                </Select>
                 <TextField
                     label="Görev Başlığı"
                     variant="outlined"
@@ -127,14 +149,17 @@ const TaskManager = () => {
                     sx={{ mr: 2 }}
                 />
                 <Select
-                    value={newTaskStatus}
-                    onChange={(e) => setNewTaskStatus(e.target.value)}
+                    label="Kategori"
+                    value={newTaskCategory}
+                    onChange={(e) => setNewTaskCategory(e.target.value)}
                     displayEmpty
                     sx={{ mr: 2 }}
                 >
-                    <MenuItem value="todo">Yapılacak</MenuItem>
-                    <MenuItem value="in-progress">Yapılıyor</MenuItem>
-                    <MenuItem value="done">Tamamlandı</MenuItem>
+                    {categories.map((category) => (
+                        <MenuItem key={category} value={category}>
+                            {category}
+                        </MenuItem>
+                    ))}
                 </Select>
                 <Button variant="contained" onClick={handleAddTask}>
                     Ekle
@@ -163,7 +188,7 @@ const TaskManager = () => {
                         </>
                     }>
                         <ListItemText
-                            primary={task.title}
+                            primary={`${task.title} - [${task.category}]`}
                             secondary={task.description}
                         />
                     </ListItem>
@@ -175,7 +200,7 @@ const TaskManager = () => {
                 <DialogTitle>Görev Düzenle</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Görev başlığını ve açıklamasını düzenleyin.
+                        Görev başlığını, açıklamasını ve kategorisini düzenleyin.
                     </DialogContentText>
                     <TextField
                         autoFocus
@@ -197,14 +222,16 @@ const TaskManager = () => {
                         onChange={(e) => setEditTaskDescription(e.target.value)}
                     />
                     <Select
-                        value={editTaskStatus}
-                        onChange={(e) => setEditTaskStatus(e.target.value)}
+                        value={editTaskCategory}
+                        onChange={(e) => setEditTaskCategory(e.target.value)}
                         fullWidth
                         sx={{ mt: 2 }}
                     >
-                        <MenuItem value="todo">Yapılacak</MenuItem>
-                        <MenuItem value="in-progress">Yapılıyor</MenuItem>
-                        <MenuItem value="done">Tamamlandı</MenuItem>
+                        {categories.map((category) => (
+                            <MenuItem key={category} value={category}>
+                                {category}
+                            </MenuItem>
+                        ))}
                     </Select>
                 </DialogContent>
                 <DialogActions>
