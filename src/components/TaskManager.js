@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, List, ListItem, ListItemText, IconButton, Select, MenuItem } from '@mui/material';
+import { Box, Button, TextField, Typography, List, ListItem, ListItemText, IconButton, Select, MenuItem, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
@@ -50,14 +50,16 @@ const TaskManager = () => {
         toast.success('Görev başarıyla eklendi!');
     };
 
+    
     const handleEditTask = (task) => {
         setEditTaskId(task.id);
         setEditTaskTitle(task.title);
         setEditTaskDescription(task.description);
         setEditTaskStatus(task.status);
-        setOpen(true);
+        setOpen(true); 
     };
 
+    
     const handleUpdateTask = () => {
         if (editTaskTitle.trim() === '' || editTaskDescription.trim() === '') {
             toast.error('Görev başlığı ve açıklaması boş olamaz.');
@@ -69,7 +71,7 @@ const TaskManager = () => {
         setEditTaskTitle('');
         setEditTaskDescription('');
         setEditTaskStatus('');
-        setOpen(false);
+        setOpen(false); 
         toast.success('Görev başarıyla güncellendi!');
     };
 
@@ -167,6 +169,49 @@ const TaskManager = () => {
                     </ListItem>
                 ))}
             </List>
+
+            {/* Düzenleme Modalı */}
+            <Dialog open={open} onClose={() => setOpen(false)}>
+                <DialogTitle>Görev Düzenle</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Görev başlığını ve açıklamasını düzenleyin.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Görev Başlığı"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={editTaskTitle}
+                        onChange={(e) => setEditTaskTitle(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Görev Açıklaması"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={editTaskDescription}
+                        onChange={(e) => setEditTaskDescription(e.target.value)}
+                    />
+                    <Select
+                        value={editTaskStatus}
+                        onChange={(e) => setEditTaskStatus(e.target.value)}
+                        fullWidth
+                        sx={{ mt: 2 }}
+                    >
+                        <MenuItem value="todo">Yapılacak</MenuItem>
+                        <MenuItem value="in-progress">Yapılıyor</MenuItem>
+                        <MenuItem value="done">Tamamlandı</MenuItem>
+                    </Select>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpen(false)}>İptal</Button>
+                    <Button onClick={handleUpdateTask}>Kaydet</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
